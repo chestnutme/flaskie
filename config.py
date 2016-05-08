@@ -1,17 +1,17 @@
 import os
-from ConfigParser import ConfigParser
+from ConfigParser import RawConfigParser
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    conf = ConfigParser()
+    conf = RawConfigParser()
     conf.read('config.ini')
     SECRET_KEY = conf.get('key', 'SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     MAIL_SERVER = conf.get('email', 'MAIL_SERVER')
     MAIL_PORT = conf.get('email', 'MAIL_PORT')
-    MAIL_USE_TLS = bool(int(conf.get('email', 'MAIL_USE_TLS')))
-    MAIL_USE_SSL = bool(int(conf.get('email', 'MAIL_USE_SSL')))
+    MAIL_USE_TLS = conf.getboolean('email', 'MAIL_USE_TLS')
+    MAIL_USE_SSL = conf.getboolean('email', 'MAIL_USE_SSL')
     MAIL_USERNAME = conf.get('email', 'MAIL_USERNAME')
     MAIL_PASSWORD = conf.get('email', 'MAIL_PASSWORD')
     FLASKY_MAIL_SUBJECT_PREFIX = conf.get('email', 'FLASKY_MAIL_SUBJECT_PREFIX')
