@@ -53,8 +53,8 @@ class Role(db.Model):
 
 class Follow(db.Model):
     __tablename__ = "follows"
-    follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class User(UserMixin, db.Model):
@@ -73,13 +73,15 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow',
-                                foreign_keys = [Follow.follower_id], 
-                                backref=db.backref('follow', lazy='joined'),
-                                cascade = 'all, delete-orphan')
-    follower = db.relationship('Follow',
-                                foreign_keys = [Follow.followed_id], 
-                                backref=db.backref('follow', lazy='joined'),
-                                cascade = 'all, delete-orphan')
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
 
     @staticmethod
     def generate_fake(count=100):
@@ -200,6 +202,7 @@ class User(UserMixin, db.Model):
             self.email.encode('utf-8')).hexdigest()
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
+
     def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self, followed=user)
