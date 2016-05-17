@@ -40,3 +40,4 @@ nosetests.xml
 
 # Virtual environment
 myenv
+app/templates/_posts.html
